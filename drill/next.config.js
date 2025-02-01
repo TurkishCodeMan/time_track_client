@@ -6,6 +6,10 @@ const nextConfig = {
       '@': __dirname
     };
     return config;
+  },
+  output: 'standalone',
+  experimental: {
+    serverActions: true
   }
 };
 

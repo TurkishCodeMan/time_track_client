@@ -24,7 +24,7 @@ interface Worker {
   role: 'WORKER' | 'ENGINEER';
 }
 
-export function MachineList() {
+export default function MachineList() {
   const { data: machines = [], isLoading, error, refetch } = useMachines();
   const { data: assignments = [], assignWorker, unassignWorker } = useWorkerAssignments();
   const { data: users = [] } = useUsers();

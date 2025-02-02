@@ -6,6 +6,18 @@ const nextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  // Modern rota yapılandırmaları
+  trailingSlash: false,
+  cleanUrls: true,
+  rewrites: async () => {
+    return []
+  },
+  redirects: async () => {
+    return []
+  },
+  headers: async () => {
+    return []
   }
 }
 

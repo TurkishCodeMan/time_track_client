@@ -307,7 +307,11 @@ export default function MachineDetailPage() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={handleCreateLocation}>
+                    <Button 
+                      size="sm" 
+                      onClick={handleCreateLocation}
+                      className="bg-success hover:bg-success-hover text-white"
+                    >
                       Lokasyon Ekle
                     </Button>
                     <Button 
@@ -514,6 +518,7 @@ export default function MachineDetailPage() {
                               onClick={() => {
                                 setIsShiftModalOpen(true);
                               }}
+                              className="text-warning hover:text-warning-hover border-warning hover:border-warning-hover"
                             >
                               Sonlandır
                             </Button>

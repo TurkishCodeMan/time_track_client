@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import "leaflet/dist/leaflet.css";
 import { Providers } from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -26,7 +25,7 @@ export default function RootLayout({
           crossOrigin=""
         />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} min-h-screen bg-white`}>
         <Providers>{children}</Providers>
       </body>
     </html>

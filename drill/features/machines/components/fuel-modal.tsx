@@ -113,7 +113,10 @@ export function FuelModal({ machineId, isOpen, onClose, activeShiftId }: FuelMod
             <Button type="button" variant="outline" onClick={onClose}>
               İptal
             </Button>
-            <Button type="submit">
+            <Button 
+              type="submit"
+              className="bg-success hover:bg-success-hover text-white"
+            >
               Kaydet
             </Button>
           </div>

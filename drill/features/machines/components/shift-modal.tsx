@@ -197,7 +197,11 @@ export function ShiftModal({ machineId, isOpen, onClose, activeShift }: ShiftMod
             <Button type="button" variant="outline" onClick={onClose}>
               İptal
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className={`${activeShift ? 'bg-warning hover:bg-warning-hover' : 'bg-success hover:bg-success-hover'} text-white`}
+            >
               {isSubmitting ? 'İşleniyor...' : activeShift ? 'Sonlandır' : 'Başlat'}
             </Button>
           </div>

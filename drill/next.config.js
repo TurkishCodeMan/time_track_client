@@ -2,9 +2,6 @@
 const nextConfig = {
   output: 'standalone',
   reactStrictMode: false,
-  experimental: {
-    serverActions: true
-  },
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,

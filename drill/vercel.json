@@ -5,11 +5,23 @@
   "installCommand": "npm install",
   "builds": [
     {
-      "src": "package.json",
+      "src": "next.config.js",
       "use": "@vercel/next"
     }
   ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/"
+    }
+  ],
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://timetrack-api.onrender.com/api"
+    "NEXT_PUBLIC_API_URL": "https://timetrack-api.onrender.com/api",
+    "NEXT_TELEMETRY_DISABLED": "1"
+  },
+  "build": {
+    "env": {
+      "NEXT_TELEMETRY_DISABLED": "1"
+    }
   }
 } 

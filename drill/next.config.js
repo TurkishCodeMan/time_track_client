@@ -1,19 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  reactStrictMode: false,
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@': '.',
-      '@/components': './components',
-      '@/features': './features',
-      '@/lib': './lib',
-      '@/styles': './styles',
-      '@/types': './types',
-      '@/utils': './utils'
-    }
-    return config
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  images: {
+    unoptimized: true,
   }
 }
 

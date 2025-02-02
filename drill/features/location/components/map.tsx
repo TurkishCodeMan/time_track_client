@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -54,14 +54,27 @@ function MapComponent({ selectedPosition, onPositionSelect, locations = [] }: Ma
   // Hekimhan/Hasançelebi koordinatları
   const defaultCenter: [number, number] = [38.992688, 37.845787];
   const mapRef = useRef<L.Map | null>(null);
+  const [mapKey, setMapKey] = useState<string>('map-1'); // Unique key for map container
 
   useEffect(() => {
+    // Harita zaten başlatılmışsa, yeni bir başlatma yapmayı engelle
+    if (mapRef.current) {
+      return;
+    }
+
     delete (L.Icon.Default.prototype as any)._getIconUrl;
     L.Icon.Default.mergeOptions({
       iconRetinaUrl: '/images/marker-icon-2x.png',
       iconUrl: '/images/marker-icon.png',
       shadowUrl: '/images/marker-shadow.png',
     });
+  }, []);
+
+  // Harita yeniden başlatılması gerektiğinde key'i değiştir
+  useEffect(() => {
+    if (!mapRef.current) {
+      setMapKey(`map-${Date.now()}`);
+    }
   }, []);
 
   // Özel marker ikonları
@@ -133,6 +146,7 @@ function MapComponent({ selectedPosition, onPositionSelect, locations = [] }: Ma
         }
       `}</style>
       <MapContainer
+        key={mapKey}
         center={selectedPosition || defaultCenter}
         zoom={15}
         style={{ width: '100%', height: '100%' }}

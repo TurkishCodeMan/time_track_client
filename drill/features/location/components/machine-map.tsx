@@ -7,7 +7,6 @@ import { useMachines } from '@/features/machines/hooks/useMachines';
 import { MapProps, MapMarker, Worker } from '../types';
 import { MachineLocation } from './machine-location';
 import dynamic from 'next/dynamic';
-import type { Map } from 'leaflet';
 import type { MapContainerProps, TileLayerProps, MarkerProps, PopupProps } from 'react-leaflet';
 import L from 'leaflet';
 

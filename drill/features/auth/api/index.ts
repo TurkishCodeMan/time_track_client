@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { AuthResponse, LoginCredentials, RegisterCredentials, User } from '../types';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = 'https://wersiyon44.pythonanywhere.com/api'
 
 // Axios instance oluştur
 const api = axios.create({

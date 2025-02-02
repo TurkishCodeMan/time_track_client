@@ -9,6 +9,7 @@ const api = axios.create({
   },
 });
 
+
 // Request interceptor - token ekle
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {

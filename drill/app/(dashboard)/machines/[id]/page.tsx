@@ -19,8 +19,14 @@ import { LocationForm } from "@/features/location/components/location-form"
 import dynamic from "next/dynamic"
 import { api } from "@/lib/api"
 import { useAuth } from "@/features/auth/hooks/useAuth"
-import { Trash2, MapPin, Users, Droplet } from "lucide-react"
+import { Trash2, MapPin, Users, Droplet, Image } from "lucide-react"
 import { WorkerModal } from "@/features/machines/components/worker-modal"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 interface ApiError {
   response?: {
@@ -52,6 +58,7 @@ export default function MachineDetailPage() {
   const [isFuelModalOpen, setIsFuelModalOpen] = useState(false)
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false)
   const [isWorkerModalOpen, setIsWorkerModalOpen] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
 
   const { data: machine, isLoading: isMachineLoading } = useMachine(machineId)
   const { data: locations = [], refetch } = useLocationHistory(machineId)
@@ -450,6 +457,7 @@ export default function MachineDetailPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Rapor Defteri</TableHead>
                     <TableHead>Başlangıç</TableHead>
                     <TableHead>Bitiş</TableHead>
                     <TableHead>Çalışanlar</TableHead>
@@ -462,6 +470,20 @@ export default function MachineDetailPage() {
                 <TableBody>
                   {shifts?.data?.map((shift) => (
                     <TableRow key={shift.id}>
+                      <TableCell>
+                        {shift.report_image ? (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setSelectedImage(shift.report_image)}
+                            className="text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                          >
+                            <Image className="h-4 w-4" />
+                          </Button>
+                        ) : (
+                          "-"
+                        )}
+                      </TableCell>
                       <TableCell>{new Date(shift.start_time).toLocaleString()}</TableCell>
                       <TableCell>{shift.end_time ? new Date(shift.end_time).toLocaleString() : "-"}</TableCell>
                       <TableCell>
@@ -510,7 +532,7 @@ export default function MachineDetailPage() {
                   ))}
                   {!shifts?.data?.length && (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center text-gray-500">
+                      <TableCell colSpan={8} className="text-center text-gray-500">
                         Vardiya kaydı bulunamadı.
                       </TableCell>
                     </TableRow>
@@ -591,6 +613,23 @@ export default function MachineDetailPage() {
         shiftId={activeShift?.id}
         onWorkerAdd={handleAddWorker}
       />
+
+      <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Rapor Defteri Fotoğrafı</DialogTitle>
+          </DialogHeader>
+          {selectedImage && (
+            <div className="relative aspect-video">
+              <img
+                src={selectedImage}
+                alt="Rapor Defteri"
+                className="w-full h-full object-contain"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

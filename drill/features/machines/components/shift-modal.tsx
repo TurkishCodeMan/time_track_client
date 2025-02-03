@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useShifts } from '../hooks/useShifts';
+import { Camera } from 'lucide-react';
 
 interface ShiftModalProps {
   machineId: number;
@@ -34,7 +35,15 @@ export function ShiftModal({ machineId, isOpen, onClose, activeShift }: ShiftMod
   const [fuelConsumption, setFuelConsumption] = useState<string>('');
   const [startLocation, setStartLocation] = useState<string>('');
   const [endLocation, setEndLocation] = useState<string>('');
+  const [reportImage, setReportImage] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setReportImage(e.target.files[0]);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,12 +52,36 @@ export function ShiftModal({ machineId, isOpen, onClose, activeShift }: ShiftMod
     try {
       if (activeShift) {
         // Vardiya sonlandırma
-        await endShift(activeShift.id, {
-          end_time: new Date().toISOString(),
-          drilling_depth: Number(drillingDepth) || 0,
-          fuel_consumption: Number(fuelConsumption) || 0,
-          end_location: endLocation ? Number(endLocation) : null
-        });
+        if (!reportImage) {
+          toast({
+            title: "Hata",
+            description: "Rapor defteri fotoğrafı zorunludur",
+            variant: "destructive",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('end_time', new Date().toISOString());
+        formData.append('drilling_depth', String(Number(drillingDepth) || 0));
+        formData.append('fuel_consumption', String(Number(fuelConsumption) || 0));
+        if (endLocation) formData.append('end_location', endLocation);
+        
+        // Fotoğrafı FormData'ya ekle
+        if (reportImage instanceof File) {
+          formData.append('report_image', reportImage);
+        }
+
+        // Debug için FormData içeriğini logla
+        console.log('FormData içeriği:');
+        console.log('end_time:', formData.get('end_time'));
+        console.log('drilling_depth:', formData.get('drilling_depth'));
+        console.log('fuel_consumption:', formData.get('fuel_consumption'));
+        console.log('end_location:', formData.get('end_location'));
+        console.log('report_image:', formData.get('report_image'));
+
+        await endShift(activeShift.id, formData);
 
         toast({
           title: "Başarılı",
@@ -76,6 +109,7 @@ export function ShiftModal({ machineId, isOpen, onClose, activeShift }: ShiftMod
       setSelectedWorkers([]);
       setStartLocation('');
       setEndLocation('');
+      setReportImage(null);
     } catch (error: any) {
       console.error('Vardiya işlemi hatası:', error);
       toast({
@@ -190,6 +224,36 @@ export function ShiftModal({ machineId, isOpen, onClose, activeShift }: ShiftMod
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="space-y-2">
+                <Label>Rapor Defteri Fotoğrafı</Label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                  ref={fileInputRef}
+                  required
+                />
+                <div 
+                  className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors
+                    ${reportImage ? 'border-green-500 bg-green-50' : 'border-gray-300'}`}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {reportImage ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="text-green-600">Fotoğraf seçildi</div>
+                      <div className="text-sm text-gray-500">{reportImage.name}</div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <Camera className="w-8 h-8 text-gray-400" />
+                      <div>Rapor defteri fotoğrafı yüklemek için tıklayın</div>
+                      <div className="text-sm text-gray-500">veya sürükleyip bırakın</div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </>
           )}
 
@@ -199,7 +263,7 @@ export function ShiftModal({ machineId, isOpen, onClose, activeShift }: ShiftMod
             </Button>
             <Button 
               type="submit" 
-              disabled={isSubmitting}
+              disabled={isSubmitting || (activeShift && !reportImage)}
               className={`${activeShift ? 'bg-warning hover:bg-warning-hover' : 'bg-success hover:bg-success-hover'} text-white`}
             >
               {isSubmitting ? 'İşleniyor...' : activeShift ? 'Sonlandır' : 'Başlat'}

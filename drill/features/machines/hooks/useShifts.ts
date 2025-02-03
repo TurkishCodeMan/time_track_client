@@ -2,6 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
+const getFullImageUrl = (url: string | null) => {
+  if (!url) return null
+  if (url.startsWith('http')) return url
+  return `https://wersiyon44.pythonanywhere.com${url}`
+}
+
 interface Worker {
   id: number;
   name: string;
@@ -20,6 +26,7 @@ interface Shift {
   fuel_consumption: number;
   created_at: string;
   updated_at: string;
+  report_image: string | null;
 }
 
 interface ShiftsResponse {
@@ -39,6 +46,7 @@ interface EndShiftData {
   drilling_depth: number;
   fuel_consumption: number;
   end_location?: number | null;
+  report_image?: File;
 }
 
 export function useShifts(machineId: number) {
@@ -61,7 +69,12 @@ export function useShifts(machineId: number) {
         },
       });
 
-      return response.data;
+      const processedData = response.data.map((shift: Shift) => ({
+        ...shift,
+        report_image: getFullImageUrl(shift.report_image)
+      }));
+
+      return processedData;
     },
     select: (data) => ({
       data: data
@@ -88,20 +101,22 @@ export function useShifts(machineId: number) {
     return refetchShifts();
   };
 
-  const endShift = async (shiftId: number, data: EndShiftData) => {
+  const endShift = async (shiftId: number, data: EndShiftData | FormData) => {
     const token = await getToken();
     if (!token) throw new Error('No token available');
 
-    const endShiftData = {
-      ...data,
-      drilling_depth: Number(data.drilling_depth),
-      fuel_consumption: Number(data.fuel_consumption)
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${token}`,
     };
 
-    await api.post(`/shifts/${shiftId}/end/`, endShiftData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    if (data instanceof FormData) {
+      headers['Content-Type'] = 'multipart/form-data';
+    } else {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    await api.post(`/shifts/${shiftId}/end/`, data, {
+      headers
     });
 
     return refetchShifts();

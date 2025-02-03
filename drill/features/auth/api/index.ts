@@ -4,7 +4,7 @@ import { AuthResponse, LoginCredentials, RegisterCredentials, User } from '../ty
 const prod_url='https://wersiyon44.pythonanywhere.com/api/'
 const dev_url='http://localhost:8000/api/'
 
-const API_URL = prod_url
+const API_URL = dev_url
 
 // Axios instance oluştur
 const api = axios.create({

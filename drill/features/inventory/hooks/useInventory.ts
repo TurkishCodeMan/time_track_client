@@ -28,7 +28,7 @@ interface InventoryTransaction {
 const getFullImageUrl = (url: string | null) => {
   if (!url) return null
   if (url.startsWith('http')) return url
-  return `http://localhost:8000${url}`
+  return `https://wersiyon44.pythonanywhere.com${url}`
 }
 
 export const useInventory = () => {

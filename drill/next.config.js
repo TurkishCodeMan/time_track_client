@@ -33,6 +33,11 @@ const nextConfig = {
         port: '8000',
         pathname: '/media/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'wersiyon44.pythonanywhere.com',
+        pathname: '/media/**',
+      },
     ],
   },
 }

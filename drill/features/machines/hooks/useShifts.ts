@@ -107,12 +107,55 @@ export function useShifts(machineId: number) {
     return refetchShifts();
   };
 
+  const addWorkerToShift = async (shiftId: number, workerId: number) => {
+    const token = await getToken();
+    if (!token) throw new Error('No token available');
+
+    await api.post(`/shifts/${shiftId}/workers/`, { worker_id: workerId }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return refetchShifts();
+  };
+
+  const removeWorkerFromShift = async (shiftId: number, workerId: number) => {
+    const token = await getToken();
+    if (!token) throw new Error('No token available');
+
+    await api.delete(`/shifts/${shiftId}/workers/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      data: { worker_id: workerId },
+    });
+
+    return refetchShifts();
+  };
+
+  const deleteShift = async (shiftId: number) => {
+    const token = await getToken();
+    if (!token) throw new Error('No token available');
+
+    await api.delete(`/shifts/${shiftId}/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return refetchShifts();
+  };
+
   return {
     shifts,
     isLoading,
     error,
     createShift,
     endShift,
+    addWorkerToShift,
+    removeWorkerFromShift,
+    deleteShift,
     refetch: refetchShifts
   };
 } 

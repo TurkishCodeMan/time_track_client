@@ -1,9 +1,10 @@
 'use client';
 
 import axios from 'axios';
-
+const prod_url='https://wersiyon44.pythonanywhere.com/api/'
+const dev_url='http://localhost:8000/api/'
 const api = axios.create({
-  baseURL: 'https://wersiyon44.pythonanywhere.com/api/',
+  baseURL: dev_url,
   headers: {
     'Content-Type': 'application/json',
   },

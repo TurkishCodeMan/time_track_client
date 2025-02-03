@@ -55,9 +55,9 @@ export default function MachineDetailPage() {
 
   const { data: machine, isLoading: isMachineLoading } = useMachine(machineId)
   const { data: locations = [], refetch } = useLocationHistory(machineId)
-  const { shifts, refetch: refetchShifts } = useShifts(machineId)
-  const { fuelConsumptions } = useFuelConsumption(machineId)
-  const { getWorkerName, getWorkerRole } = useUsers()
+  const { shifts, deleteShift, refetch: refetchShifts } = useShifts(machineId)
+  const { fuelConsumptions, deleteFuelConsumption } = useFuelConsumption(machineId)
+  const { getWorkerName, getWorkerRole, refetch: refetchUsers } = useUsers()
 
   const totalDrillingDepth =
     shifts?.data?.reduce((total, shift) => {
@@ -150,16 +150,15 @@ export default function MachineDetailPage() {
 
       const data = {
         name: worker.name,
-        role: worker.role,
-        machine: machineId,
-        shift: activeShift?.id,
+        role: worker.role
       }
 
-      await api.post(`/machines/${machineId}/shifts/${activeShift?.id}/workers/`, data, {
+      await api.post(`/shifts/${activeShift?.id}/workers/`, data, {
         headers: { Authorization: `Bearer ${token}` },
       })
 
       await refetchShifts()
+      await refetchUsers()
 
       toast({
         title: "Başarılı",
@@ -181,11 +180,13 @@ export default function MachineDetailPage() {
       const token = await getToken()
       if (!token) throw new Error("Token not found")
 
-      await api.delete(`/machines/${machineId}/shifts/${activeShift?.id}/workers/${workerId}/`, {
+      await api.delete(`/shifts/${activeShift?.id}/workers/`, {
         headers: { Authorization: `Bearer ${token}` },
+        data: { worker_id: workerId }
       })
 
       await refetchShifts()
+      await refetchUsers()
 
       toast({
         title: "Başarılı",
@@ -483,7 +484,7 @@ export default function MachineDetailPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {!shift.end_time && (
+                        {!shift.end_time ? (
                           <Button
                             variant="outline"
                             size="sm"
@@ -493,6 +494,15 @@ export default function MachineDetailPage() {
                             className="text-yellow-600 hover:text-yellow-700 border-yellow-600 hover:border-yellow-700"
                           >
                             Vardiyayı Bitir
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => deleteShift(shift.id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         )}
                       </TableCell>
@@ -524,6 +534,7 @@ export default function MachineDetailPage() {
                   <TableHead>Miktar</TableHead>
                   <TableHead>Vardiya</TableHead>
                   <TableHead>Notlar</TableHead>
+                  <TableHead>İşlemler</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -533,11 +544,21 @@ export default function MachineDetailPage() {
                     <TableCell>{consumption.amount} Lt</TableCell>
                     <TableCell>{consumption.shift || "-"}</TableCell>
                     <TableCell>{consumption.notes || "-"}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => deleteFuelConsumption.mutate(consumption.id)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
                 {!fuelConsumptions.data?.history.length && (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-gray-500">
+                    <TableCell colSpan={5} className="text-center text-gray-500">
                       Yakıt tüketim kaydı bulunamadı.
                     </TableCell>
                   </TableRow>

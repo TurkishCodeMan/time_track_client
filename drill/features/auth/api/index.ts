@@ -1,7 +1,10 @@
 import axios from 'axios';
 import { AuthResponse, LoginCredentials, RegisterCredentials, User } from '../types';
 
-const API_URL = 'https://wersiyon44.pythonanywhere.com/api'
+const prod_url='https://wersiyon44.pythonanywhere.com/api/'
+const dev_url='http://localhost:8000/api/'
+
+const API_URL = dev_url
 
 // Axios instance oluştur
 const api = axios.create({
@@ -24,8 +27,6 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-
-
 
 // Response interceptor
 api.interceptors.response.use(

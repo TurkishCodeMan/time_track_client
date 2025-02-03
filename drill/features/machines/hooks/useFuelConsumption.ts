@@ -71,8 +71,25 @@ export function useFuelConsumption(machineId: number) {
     },
   });
 
+  const deleteFuelConsumption = useMutation({
+    mutationFn: async (consumptionId: number) => {
+      const token = await getToken();
+      if (!token) throw new Error('No token available');
+
+      await api.delete(`/machines/${machineId}/fuel/${consumptionId}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fuelConsumptions', machineId] });
+    },
+  });
+
   return {
     fuelConsumptions,
     createFuelConsumption,
+    deleteFuelConsumption
   };
 } 

@@ -29,7 +29,6 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
       <main className="py-6">{children}</main>
     </div>
   );

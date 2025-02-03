@@ -1,29 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 
-const MachineMapWithNoSSR = dynamic(
-  () => import('@/features/location/components/machine-map'),
-  { 
-    ssr: false,
-    loading: () => (
-      <div className="relative w-full h-[calc(100vh-4rem)] min-h-[600px] rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-2"></div>
-            <p className="text-gray-500">Harita yükleniyor...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-);
-
-export default function Home() {
-  const { isAuthenticated, isLoading } = useAuth();
+export default function DashboardPage() {
+  const { isAuthenticated, isLoading, user, logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -32,14 +15,20 @@ export default function Home() {
     }
   }, [isLoading, isAuthenticated, router]);
 
-  if (isLoading || !isAuthenticated) {
-    return null;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg">Yükleniyor...</div>
+      </div>
+    );
   }
 
   return (
-    <div className="container min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">Hoş Geldiniz</h1>
-      <MachineMapWithNoSSR />
+    <div className="container mx-auto py-6">
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Dashboard kartları buraya gelecek */}
+      </div>
     </div>
   );
-}
+} 

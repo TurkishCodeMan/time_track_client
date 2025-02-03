@@ -18,7 +18,23 @@ const nextConfig = {
   },
   headers: async () => {
     return []
-  }
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',
+        pathname: '/inventory/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',
+        pathname: '/media/**',
+      },
+    ],
+  },
 }
 
 module.exports = nextConfig

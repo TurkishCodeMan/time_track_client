@@ -1,31 +1,60 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
-import { useAuth } from '@/features/auth/hooks/useAuth';
 
 interface Worker {
   id: number;
   name: string;
   surname: string;
   email: string;
-  role: string;
+  role: 'ADMIN' | 'ENGINEER' | 'WORKER';
+}
+
+interface WorkerInput {
+  name: string;
+  surname: string;
+  email: string;
+  role: 'ADMIN' | 'ENGINEER' | 'WORKER';
+  password?: string;
 }
 
 export function useWorkers() {
-  const { getToken } = useAuth();
+  const queryClient = useQueryClient();
 
-  return useQuery({
+  const { data: workers = [], isLoading, error } = useQuery<Worker[]>({
     queryKey: ['workers'],
-    queryFn: async () => {
-      const token = await getToken();
-      if (!token) throw new Error('No token available');
+    queryFn: () => api.get('/users/').then((res) => res.data),
+  });
 
-      const { data } = await api.get<Worker[]>('/users/?role=WORKER', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      return data;
+  const createMutation = useMutation({
+    mutationFn: (newWorker: WorkerInput) =>
+      api.post('/users/', newWorker).then((res) => res.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workers'] });
     },
   });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, ...data }: WorkerInput & { id: number }) =>
+      api.put(`/users/${id}/`, data).then((res) => res.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workers'] });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) =>
+      api.delete(`/users/${id}/`).then((res) => res.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workers'] });
+    },
+  });
+
+  return {
+    workers,
+    isLoading,
+    error,
+    createWorker: createMutation.mutateAsync,
+    updateWorker: updateMutation.mutateAsync,
+    deleteWorker: deleteMutation.mutateAsync,
+  };
 } 

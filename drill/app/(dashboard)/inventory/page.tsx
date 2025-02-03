@@ -6,15 +6,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Package2, Search, Plus, AlertTriangle } from "lucide-react"
+import { Package2, Search, Plus, AlertTriangle, Trash2 } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import Image from "next/image"
 import { InventoryModal } from "@/features/inventory/components/inventory-modal"
+import { useToast } from "@/components/ui/use-toast"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export default function InventoryPage() {
-  const { items, isLoading } = useInventory()
+  const { items, isLoading, deleteItem } = useInventory()
+  const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [itemToDelete, setItemToDelete] = useState<number | null>(null)
   const [selectedItem, setSelectedItem] = useState<{
     id: number
     name: string
@@ -31,6 +45,32 @@ export default function InventoryPage() {
   const handleEdit = (item: typeof selectedItem) => {
     setSelectedItem(item)
     setIsModalOpen(true)
+  }
+
+  const handleDelete = async (id: number) => {
+    setItemToDelete(id)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return
+
+    try {
+      await deleteItem.mutateAsync(itemToDelete)
+      toast({
+        title: "Başarılı",
+        description: "Malzeme başarıyla silindi.",
+      })
+    } catch (error) {
+      toast({
+        title: "Hata",
+        description: "Malzeme silinirken bir hata oluştu.",
+        variant: "destructive",
+      })
+    } finally {
+      setDeleteDialogOpen(false)
+      setItemToDelete(null)
+    }
   }
 
   if (isLoading) {
@@ -151,6 +191,14 @@ export default function InventoryPage() {
                       <Button variant="outline" size="sm">
                         Stok Ekle
                       </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(item.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -168,6 +216,23 @@ export default function InventoryPage() {
         }}
         editItem={selectedItem}
       />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Malzemeyi silmek istediğinize emin misiniz?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bu işlem geri alınamaz. Malzeme ve ilgili tüm stok hareketleri kalıcı olarak silinecektir.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>İptal</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+              Sil
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 } 
